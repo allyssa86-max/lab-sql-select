@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="publications.sqlite" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="816"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="authors" custom_title="0" dock_id="3" table="4,7:mainauthors"/><dock_state state="000000ff00000000fd0000000100000002000004c800000370fc0100000003fb000000160064006f0063006b00420072006f00770073006500310100000000000004380000000000000000fb000000160064006f0063006b00420072006f00770073006500320100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500330100000000000004c80000011e00ffffff000002580000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="authors" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="93"/><column index="2" value="117"/><column index="3" value="93"/><column index="4" value="101"/><column index="5" value="163"/><column index="6" value="117"/><column index="7" value="36"/><column index="8" value="46"/><column index="9" value="54"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">-- Left join, keeps EVERYTHING from the left table, even if there's no match to the RIGHT
+SELECT f.title, COUNT(r.rental_id) AS rental_count
+FROM film f
+LEFT JOIN inventory i ON f.film_id = i.film_id
+LEFT JOIN rental r ON i.inventory_id = r.inventory_id
+GROUP BY f.title
+ORDER BY rental_count ASC;
+
+--RIGHT join keeps everything from the RIGHT table
+SELECT a.address, c.first_name
+FROM customer c
+RIGHT JOIN address a ON c.address_id = a.address_id
+WHERE c.customer_id IS NULL;
+
+--Subqueries
+SELECT film_id FROM film 
+WHERE length &gt;(
+	SELECT AVG(length) 
+	AS average FROM film
+	))AS selected_film_id;
+
+
+--Subqueries
+SELECT DISTINCT first_name, last_name FROM actor
+INNER JOIN (
+	(SELECT actor_id FROM film_actor
+	INNER JOIN
+		(SELET film_id FROM film
+			WHERE length &gt;(
+			SELECT AVG(length)
+		AS average FROM film)
+			) AS selected_film_id
+	ON film_actor.film_id = selected_film_id.film_id) AS selected_actors
+ON actor.actor_id = selected_actors.actor_id; 
+
+</sql><sql name="SQL 2*">-- Challenge 1
+SELECT 
+	authors.au_id AS &quot;AUTHOR ID&quot;,
+	authors.au_lname AS &quot;LAST NAME&quot;,
+	authors.au_fname AS &quot;FIRST NAME&quot;,
+	titles.title AS &quot;TITLE&quot;,
+	publishers.pub_name AS &quot;PUBLISHER&quot;
+FROM authors
+JOIN titleauthor ON authors.au_id = titleauthor.au_id 
+JOIN titles ON titleauthor.title_id = titles.title_id
+JOIN publishers ON titles.pub_id = publishers.pub_id;
+
+--Challenge 2
+
+SELECT 
+	authors.au_id AS &quot;AUTHOR ID&quot;,
+	authors.au_lname AS &quot;LAST NAME&quot;,
+	authors.au_fname AS &quot;FIRST NAME&quot;,
+	titles.title AS &quot;TITLE&quot;,
+	publishers.pub_name AS &quot;PUBLISHER&quot;,
+	COUNT (*) AS &quot;TITLE COUNT&quot;
+FROM authors
+JOIN titleauthor ON authors.au_id = titleauthor.au_id 
+JOIN titles ON titleauthor.title_id = titles.title_id
+JOIN publishers ON titles.pub_id = publishers.pub_id
+GROUP BY authors.au_id, authors.au_lname, authors.au_fname, titles.title, publishers.pub_name;
+
+--Challenge 3
+SELECT 
+	authors.au_id as &quot;AUTHOR ID&quot;,
+	authors.au_lname as &quot;LAST NAME&quot;, 
+	authors.au_fname as &quot;FIRST NAME&quot;, 
+	COUNT (*) AS &quot;TOTAL&quot;
+FROM authors
+JOIN titleauthor on authors.au_id = titleauthor.au_id
+JOIN titles on titleauthor.title_id = titles.title_id
+GROUP BY authors.au_id, authors.au_lname, authors.au_fname
+ORDER BY COUNT (*) DESC
+LIMIT 3;
+
+--Challenge 4
+
+SELECT 
+	authors.au_id as &quot;AUTHOR ID&quot;,
+	authors.au_lname as &quot;LAST NAME&quot;, 
+	authors.au_fname as &quot;FIRST NAME&quot;, 
+	COUNT (*) AS &quot;TOTAL&quot;
+FROM authors
+JOIN titleauthor on authors.au_id = titleauthor.au_id
+JOIN titles on titleauthor.title_id = titles.title_id
+GROUP BY authors.au_id, authors.au_lname, authors.au_fname
+ORDER BY COUNT (*) DESC
+LIMIT 23;
+
+
+</sql><current_tab id="1"/></tab_sql></sqlb_project>
